@@ -1,6 +1,3 @@
-/**
- * Created by Justin on 8/17/15.
- */
 var gulp = require("gulp");
 var browserify = require("browserify");
 var babelify = require("babelify");
@@ -16,7 +13,7 @@ gulp.task("bundle", function() {
 });
 
 gulp.task("watch", function() {
-  gulp.watch("./app/*.js", ["bundle"]);
+  gulp.watch(["./app/*.js", "./app/components/**/*.js"], ["bundle"]);
 });
 
 gulp.task("default", ["bundle", "watch"]);

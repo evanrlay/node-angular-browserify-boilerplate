@@ -14,7 +14,7 @@ require("angular-route");
 
 angular.module("app", ["ngRoute"]).config(require("./routes.js")).controller("mainController", function () {
   var vm = this;
-  vm.title = "Title";
+  vm.title = "Devloper";
 });
 
 },{"./routes.js":3,"angular":7,"angular-route":5}],3:[function(require,module,exports){
