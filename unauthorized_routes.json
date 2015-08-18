@@ -1,0 +1,6 @@
+[
+  {
+    "route": "/api/users",
+    "method": "POST"
+  }
+]

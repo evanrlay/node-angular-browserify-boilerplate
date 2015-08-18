@@ -12,6 +12,8 @@
   var cors = require("cors");
   var jwt = require("jsonwebtoken");
   var jwt_secret = "IAreDevloper";
+  var fs = require("fs");
+  var _ = require("underscore");
 
   var port = process.env.PORT || 8080;
   var dbHost = process.env.DBHOST || "localhost";
@@ -117,8 +119,15 @@
   function validateToken(req, res, next) {
     /// <summary>Validates that the user has supplied a valid token before making requests</summary>
 
-    // Validation not required if creating a new user
-    if(req.originalUrl == "/api/users" && req.method == "POST")
+    // Get list of all routes that don't require validation and check if user requested one.
+    var routes = JSON.parse(fs.readFileSync("./unauthorized_routes.json", "utf8"));
+
+    var requestedRoute = {
+      route: req.originalUrl,
+      method: req.method
+    };
+
+    if(_.findWhere(routes, requestedRoute))
       return next();
 
     var token = req.body.token || req.query.token || req.headers["x-access-token"];
