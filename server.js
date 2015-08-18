@@ -16,6 +16,9 @@
   var port = process.env.PORT || 8080;
   var dbHost = process.env.DBHOST || "localhost";
   var dbPort = process.env.DBPORT || 27017;
+  var dbUser = process.env.DBUSER || undefined;
+  var dbPassword = process.env.DBPASSWORD || undefined;
+
   var database = "devloper";
 
   // Controller config
@@ -36,7 +39,10 @@
   app.use(bodyParser.json());
 
   // Set up mongoose
-  var connectionString = "mongodb://" + dbHost + ":" + dbPort + "/" + database;
+  var userInfo = "";
+  if(dbUser && dbPassword)
+    userInfo = dbUser + ":" + dbPassword + "@";
+  var connectionString = "mongodb://" + userInfo + dbHost + ":" + dbPort + "/" + database;
   mongoose.connect(connectionString);
 
   mongoose.connection.on('connected', function () {
