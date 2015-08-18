@@ -1,0 +1,30 @@
+{
+  "name": "node-angular-browserify-boilerplate",
+  "version": "1.0.0",
+  "description": "Node JS application with Gulp, Angular, and Browserify.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Node",
+    "Angular",
+    "Browserify",
+    "Javascript",
+    "boilerplate",
+    "template",
+    "example"
+  ],
+  "author": "Justin Brumley",
+  "license": "ISC",
+  "dependencies": {
+    "angular": "^1.4.4",
+    "angular-route": "^1.4.4",
+    "babelify": "^6.1.3",
+    "brfs": "^1.4.1",
+    "browserify": "^11.0.1",
+    "express": "^4.13.3",
+    "gulp": "^3.9.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
