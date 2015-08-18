@@ -43,25 +43,20 @@
     console.log('Mongoose connection open to ' + dbHost + ":" + dbPort);
   });
 
+  // Static file serving
+  app.use(express.static(__dirname + "/public"));
+
   // Handle authentication
   app.post("/api/authenticate", authenticate);
 
   // Middleware to verify that a user if authenticated
   app.use(validateToken);
 
-  // Static file serving
-  app.use(express.static(__dirname + "/public"));
-
   // Load controllers
   for (var i in controllers) {
     var router = require("./api/controllers/" + controllers[i].controller + ".js");
     app.use(controllers[i].routePrefix, router);
   }
-
-  app.use("*", function(req, res) {
-    /// <summary>All unused routes redirect to index page.</summary>
-    res.sendFile(__dirname + "/public/index.html");
-  });
 
   app.listen(port, function() {
     console.log("Listening on port " + port);
