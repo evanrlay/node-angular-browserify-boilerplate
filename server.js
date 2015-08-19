@@ -60,6 +60,11 @@
   // Middleware to verify that a user if authenticated
   app.use(validateToken);
 
+  // Send information about themselves if requested to users
+  app.get("/api/me", function(req, res) {
+    return res.send(req.decoded);
+  });
+
   // Load controllers
   for (var i in controllers) {
     var router = require("./api/controllers/" + controllers[i].controller + ".js");

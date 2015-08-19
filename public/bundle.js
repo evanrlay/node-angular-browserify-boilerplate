@@ -9,30 +9,185 @@ module.exports = function () {
 },{}],2:[function(require,module,exports){
 "use strict";
 
+module.exports = function () {
+
+  var vm = this;
+};
+
+},{}],3:[function(require,module,exports){
+"use strict";
+
 require("angular");
 require("angular-route");
+require("./services/authService.js");
+require("./services/userService.js");
 
-angular.module("app", ["ngRoute"]).config(require("./routes.js")).controller("mainController", function () {
+angular.module("app", ["ngRoute", "userService", "authService"]).config(require("./routes.js")).controller("mainController", function () {
   var vm = this;
   vm.title = "Devloper";
 });
 
-},{"./routes.js":3,"angular":7,"angular-route":5}],3:[function(require,module,exports){
+},{"./routes.js":4,"./services/authService.js":5,"./services/userService.js":6,"angular":10,"angular-route":8}],4:[function(require,module,exports){
 (function (Buffer){
 "use strict";
 
 
 
-module.exports = function ($routeProvider) {
+module.exports = function ($routeProvider, $locationProvider) {
   $routeProvider.when("/", {
     template: Buffer("PGgzPnt7IGhvbWUudGl0bGUgfX08L2gzPg==","base64"),
     controller: require("./components/home/homeController.js"),
     controllerAs: "home"
+  }).when("/login", {
+    template: Buffer("","base64"),
+    controller: require("./components/login/loginController.js"),
+    controllerAs: "login"
   });
+
+  //$locationProvider.html5Mode(true);
 };
 
 }).call(this,require("buffer").Buffer)
-},{"./components/home/homeController.js":1,"buffer":8}],4:[function(require,module,exports){
+},{"./components/home/homeController.js":1,"./components/login/loginController.js":2,"buffer":11}],5:[function(require,module,exports){
+"use strict";
+
+require("angular");
+
+angular.module("authService", [])
+
+// ---------------------------------------------------------
+// Auth Factory
+// ---------------------------------------------------------
+.factory("Auth", function ($http, $q, AuthToken) {
+  var authFactory = {};
+
+  // Handle login
+  authFactory.login = function (username, password) {
+    return $http.post("/api/authenticate", {
+      username: username,
+      password: password
+    }).success(function (data) {
+      AuthToken.setToken(data.token);
+      return data;
+    });
+  };
+
+  // Handle logout
+  authFactory.logout = function () {
+    // clear the token on logout
+    AuthToken.setToken();
+  };
+
+  // Check if user is logged in
+  authFactory.isLoggedIn = function () {
+    return !!AuthToken.getToken();
+  };
+
+  // Get the user info
+  authFactory.getUser = function () {
+    if (AuthToken.getToken()) {
+      return $http.get("/api/me");
+    } else {
+      return $q.reject({
+        message: "User has no token"
+      });
+    }
+  };
+
+  // Return factory object
+  return authFactory;
+})
+
+// ---------------------------------------------------------
+// Auth Token Factory
+// ---------------------------------------------------------
+.factory("AuthToken", function ($window) {
+  var authTokenFactory = {};
+
+  // Get the token
+  authTokenFactory.getToken = function () {
+    return $window.localStorage.getItem("token");
+  };
+
+  // Set the token or clear it
+  authTokenFactory.setToken = function (token) {
+    if (token) {
+      $window.localStorage.setItem("token", token);
+    } else {
+      $window.localStorage.removeItem("token");
+    }
+  };
+
+  return authTokenFactory;
+})
+
+// ---------------------------------------------------------
+// Auth Interceptor Factory
+// ---------------------------------------------------------
+.factory("AuthInterceptor", function ($q, AuthToken) {
+  var interceptorFactory = {};
+
+  // Attach the token to every request
+  interceptorFactory.request = function (config) {
+
+    // Get user token
+    var token = AuthToken.getToken();
+
+    if (token) {
+      config.headers["x-access-token"] = token;
+    }
+
+    return config;
+  };
+
+  // Redirect if token doesn't authenticate
+  interceptorFactory.responseError = function (response) {
+    if (response.status == 403) {
+      AuthToken.setToken();
+      $location.path("/login");
+    }
+
+    return $q.reject(response);
+  };
+
+  return interceptorFactory;
+});
+
+},{"angular":10}],6:[function(require,module,exports){
+"use strict";
+
+require("angular");
+
+angular.module("userService", [])
+
+// ---------------------------------------------------------
+// User Factory
+// ---------------------------------------------------------
+.factory("User", function ($http) {
+  var userFactory = {};
+
+  userFactory.all = function () {
+    return $http.get("/api/users");
+  };
+
+  userFactory.get = function (id) {
+    return $http.get("/api/users/" + id);
+  };
+
+  userFactory.add = function (user) {
+    return $http.post("/api/users", user);
+  };
+
+  userFactory.update = function (id, user) {
+    return $http.put("/api/users/" + id, user);
+  };
+
+  userFactory["delete"] = function (id) {
+    return $http["delete"]("/api/users/" + id);
+  };
+});
+
+},{"angular":10}],7:[function(require,module,exports){
 /**
  * @license AngularJS v1.4.4
  * (c) 2010-2015 Google, Inc. http://angularjs.org
@@ -1026,11 +1181,11 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-},{}],5:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 require('./angular-route');
 module.exports = 'ngRoute';
 
-},{"./angular-route":4}],6:[function(require,module,exports){
+},{"./angular-route":7}],9:[function(require,module,exports){
 /**
  * @license AngularJS v1.4.4
  * (c) 2010-2015 Google, Inc. http://angularjs.org
@@ -29635,11 +29790,11 @@ $provide.value("$locale", {
 })(window, document);
 
 !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
-},{}],7:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 require('./angular');
 module.exports = angular;
 
-},{"./angular":6}],8:[function(require,module,exports){
+},{"./angular":9}],11:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -31161,7 +31316,7 @@ function blitBuffer (src, dst, offset, length) {
   return i
 }
 
-},{"base64-js":9,"ieee754":10,"is-array":11}],9:[function(require,module,exports){
+},{"base64-js":12,"ieee754":13,"is-array":14}],12:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -31287,7 +31442,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],10:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = nBytes * 8 - mLen - 1
@@ -31373,7 +31528,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],11:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 
 /**
  * isArray
@@ -31408,4 +31563,4 @@ module.exports = isArray || function (val) {
   return !! val && '[object Array]' == str.call(val);
 };
 
-},{}]},{},[2]);
+},{}]},{},[3]);
